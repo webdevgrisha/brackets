@@ -3,10 +3,10 @@ module.exports = function check(str, bracketsConfig) {
 
   const bracketsPairs = {
     openBrackets: [],
-    closeBrackets: [],
+    closeBrackets: {},
     sameBrackets: [],
   };
-  
+
   const bracketsStack = [];
 
   bracketsConfig.forEach((bracketsGroup) => {
@@ -17,16 +17,17 @@ module.exports = function check(str, bracketsConfig) {
     }
 
     bracketsPairs.openBrackets.push(openBracket);
-    bracketsPairs.closeBrackets.push(closeBracket);
+    bracketsPairs.closeBrackets[closeBracket] = openBracket;
   });
 
   for (let i = 0; i < str.length; i++) {
     const bracket = str[i];
     const isOpen = bracketsPairs.openBrackets.includes(bracket);
     const isSame = bracketsPairs.sameBrackets.includes(bracket);
+    const isbracketsStackEmpty = bracketsStack.length === 0;
     const bracketsStackTop = bracketsStack.at(-1);
 
-    if (isSame && bracketsStack.length !== 0) {
+    if (isSame && !isbracketsStackEmpty) {
       bracketsStackTop === bracket ? bracketsStack.pop() : bracketsStack.push(bracket);
       continue;
     }
@@ -36,10 +37,7 @@ module.exports = function check(str, bracketsConfig) {
       continue;
     }
 
-    const closeBracketIndex = bracketsPairs.closeBrackets.findIndex(
-      (closeBracket) => closeBracket === bracket
-    );
-    const openBracket = bracketsPairs.openBrackets[closeBracketIndex];
+    const openBracket = bracketsPairs.closeBrackets[bracket];
 
     if (bracketsStackTop !== openBracket) return false;
 
